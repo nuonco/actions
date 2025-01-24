@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "setting a key value output"
+echo "KEY=VALUE" >> $NUON_ACTIONS_OUTPUT_FILEPATH
