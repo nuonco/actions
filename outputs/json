@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "setting a json output"
+echo '{"json_key":"json_value"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+
