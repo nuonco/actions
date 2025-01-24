@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "listing all buckets..."
+aws s3 ls

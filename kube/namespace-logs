@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "showing logs in default namespace..."
+kubectl get events -A --sort-by='.metadata.creationTimestamp'
+
