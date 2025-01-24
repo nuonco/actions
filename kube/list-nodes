@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "listing nodes..."
+kubectl get node \
+  --sort-by=".metadata.creationTimestamp" \
+  -o=custom-columns="Name:.metadata.name,Status:.status.conditions[-1].type,AZ:.metadata.labels.topology\.kubernetes\.io/zone,Size:metadata.labels.node\.kubernetes\.io/instance-type,Create:.metadata.creationTimestamp"
