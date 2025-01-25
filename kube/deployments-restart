@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "listing nodes..."
+kubectl --namespace $NAMESPACE get deployments |\
+  tail +2          |\
+  cut -d ' '  -f 1 |\
+  xargs -I % sh -c "kubectl --namespace ${NAMESPACE} rollout restart deployment %"
