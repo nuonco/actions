@@ -4,22 +4,22 @@ set -e
 set -o pipefail
 set -u
 
-echo >&2 "listing deployments..."
+echo >&2 "restarting one deployment..."
 
 # get current state
-pre=$(kubectl get -n $NAMESPACE deployment/$DEPLOYMENT -o json)
+pre=$(kubectl get -n $DEPLOYMENT_NAMESPACE deployment/$DEPLOYMENT_NAME -o json)
 
 # restart deployment
-kubectl --namespace $NAMESPACE get deployments |\
+kubectl --namespace $DEPLOYMENT_NAMESPACE get deployments/$DEPLOYMENT_NAME |\
   tail +2          |\
   cut -d ' '  -f 1 |\
-  xargs -I % sh -c "kubectl --namespace ${NAMESPACE} rollout restart deployment %"
+  xargs -I % sh -c "kubectl --namespace ${DEPLOYMENT_NAMESPACE} rollout restart deployment %"
 
 exit_code="$?"
 sleep 5
 
 # get new state
-post=$(kubectl get -n $NAMESPACE deployment/$DEPLOYMENT -o json)
+post=$(kubectl get -n $DEPLOYMENT_NAMESPACE deployment/$DEPLOYMENT_NAME -o json)
 
 payload=`jq --null-input --arg exitCode "$exit_code" --argjson preContent "$pre" --argjson postContent "$post" '{"exit_code": $exitCode, "pre": $preContent, "post": $postContent}'`
 echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
