@@ -6,10 +6,10 @@ set -eo pipefail
 timestamp=`date -Iminutes | sed 's/://g' | sed 's/-//g'`
 tmp_location="/tmp/$timestamp.txt"
 echo >&2 "showing logs in default namespace..."
-kubectl get events -A --sort-by='.metadata.creationTimestamp' 2>&1 | tee $tmp_location
+kubectl logs --tail=1000 -n $DEPLOYMENT_NAMESPACE deployment/$DEPLOYMENT_NAME 2>&1 | tee $tmp_location
 
 exit_code="$?"
-events_txt=`cat $tmp_location`
-payload=`jq --null-input --arg exitCode "$exit_code" --arg events "${events_txt//$' '/·}" '{"exit_code": $exitCode, "events": $events}'`
+logs_txt=`cat $tmp_location`
+payload=`jq --null-input --arg exitCode "$exit_code" --arg logs "$logs_txt" '{"exit_code": $exitCode, "logs": $logs}'`
 rm $tmp_location
 echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH

@@ -142,3 +142,47 @@ directory = "kube"
 [steps.env_vars]
 NAMESPACE = "api"
 ```
+
+## [Deployment Logs](./deployment-logs)
+
+Get up to 1000 log lines from a deployment in a given namespace.
+
+### Inputs
+
+| Input                  | Description                                                     | Example      |
+| ---------------------- | --------------------------------------------------------------- | ------------ |
+| `DEPLOYMENT_NAME`      | The name of the deployment we are going to check the status of. | `api-public` |
+| `DEPLOYMENT_NAMESPACE` | The namespace it lives in.                                      | `api`        |
+
+### Outputs
+
+Format: `json`
+
+| Value       | Description                                                     | Example   |
+| ----------- | --------------------------------------------------------------- | --------- |
+| `exit_code` | The exit code of the `kubectl` command                          | 0, 1, 127 |
+| `logs`      | The text output of `kubectl logs -n nsl deployments/deployment` |           |
+
+### Example Configuration
+
+```toml
+#:schema https://api.nuon.co/v1/general/config-schema?source=action
+name    = "deployment-logs"
+timeout = "2m30s"
+
+[[triggers]]
+type = "manual"
+
+[[steps]]
+name    = "deployment-logs"
+command = "./deployment-logs"
+
+[steps.public_repo]
+repo      = "nuonco/actions"
+branch    = "main"
+directory = "kube"
+
+[steps.env_vars]
+DEPLOYMENT_NAMESPACE = "api"
+DEPLOYMENT_NAME      = "api"
+```
