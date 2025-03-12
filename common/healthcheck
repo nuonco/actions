@@ -21,7 +21,7 @@ esac
 
 
 # excute the request
-response=`curl -o - -I -X $method $ENDPOINT`
+response=`curl --silent -o - -I -X $method $ENDPOINT`
 
 # get the status code
 status_code=`echo $response | head -n 1 | cut -d ' ' -f 2`
