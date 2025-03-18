@@ -32,9 +32,13 @@ if [ "$status_code" == "$EXPECTED_STATUS_CODE" ];
   then
     success="true"
     indicator="🟢"
+    status=0
   else
     success="false"
     indicator="🔴"
+    status=1
 fi
+
 # save the status code as an output
 echo '{"status_code": "'$status_code'", "success": "'$success'", "indicator": "'$indicator'"}' >> $NUON_ACTIONS_OUTPUT_FILEPATH
+exit $status
