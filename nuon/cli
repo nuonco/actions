@@ -20,4 +20,4 @@ if [ -z "${NUON_ORG_ID}" ]; then
 fi
 
 echo >&2 "executing"
-nuon "$@"
+nuon --json "$@"
