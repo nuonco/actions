@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -e
+set -o pipefail
+set -u
+
+echo >&2 "installing nuon"
+echo "y" | /bin/bash -c "$(curl -fsSL https://nuon-artifacts.s3.us-west-2.amazonaws.com/cli/install.sh)"
+
+if [ -z "${NUON_API_TOKEN}" ]; then
+  echo >&2 "NUON_API_TOKEN must be set in the environment"
+fi
+
+if [ -z "${NUON_API_URL}" ]; then
+  echo >&2 "NUON_API_URL must be set in the environment"
+fi
+
+if [ -z "${NUON_ORG_ID}" ]; then
+  echo >&2 "NUON_ORG_ID must be set in the environment"
+fi
+
+echo >&2 "executing"
+nuon --json "$@"
