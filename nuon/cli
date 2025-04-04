@@ -4,11 +4,6 @@ set -e
 set -o pipefail
 set -u
 
-echo "running healthcheck"
-echo " endpoint: $ENDPOINT"
-echo "  expects: $EXPECTED_STATUS_CODE"
-
-
 echo >&2 "installing nuon"
 echo "y" | /bin/bash -c "$(curl -fsSL https://nuon-artifacts.s3.us-west-2.amazonaws.com/cli/install.sh)"
 
