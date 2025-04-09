@@ -2,9 +2,12 @@
 
 set -eo pipefail
 
-echo >&2 "listing nodes with neuroncores..."
+eCho >&2 "listing nodes with neuroncores..."
 content=$(kubectl get nodes "-o=custom-columns=NAME:.metadata.name,NeuronCore:.status.allocatable.aws\.amazon\.com/neuroncore")
 
 exit_code="$?"
+
+echo "$content"
+
 payload=`jq --null-input --arg exitCode "$exit_code" --arg textContent "${content//$' '/·}" '{"exit_code": $exitCode, "content": $textContent}'`
 echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
