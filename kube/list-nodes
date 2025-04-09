@@ -8,5 +8,8 @@ content=$(kubectl get node \
   -o=custom-columns="Name:.metadata.name,Status:.status.conditions[-1].type,AZ:.metadata.labels.topology\.kubernetes\.io/zone,Size:metadata.labels.node\.kubernetes\.io/instance-type,Create:.metadata.creationTimestamp")
 
 exit_code="$?"
+
+echo "$content"
+
 payload=`jq --null-input --arg exitCode "$exit_code" --arg textContent "${content//$' '/·}" '{"exit_code": $exitCode, "content": $textContent}'`
 echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
