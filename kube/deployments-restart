@@ -3,10 +3,10 @@
 set -eo pipefail
 
 echo >&2 "restarting deployments..."
-kubectl --namespace $NAMESPACE get deployments |\
+kubectl get --namespace $NAMESPACE deployments |\
   tail +2          |\
   cut -d ' '  -f 1 |\
-  xargs -I % sh -c "kubectl --namespace ${NAMESPACE} rollout restart deployment %"
+  xargs -I % sh -c "kubectl rollout --namespace ${NAMESPACE} restart deployment %"
 
 exit_code="$?"
 ns_deployments=$(kubectl get -n $NAMESPACE deployments -o json)
