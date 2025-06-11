@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+set -u
+
+echo "listing subnet ips per availability zone"
+raw=`aws ec2 describe-subnets --filters "Name=tag-key,Values=install.nuon.co/id" --filters "Name=tag-value,Values=$NUON_INSTALL_ID"`
+
+# print some values
+echo $raw | jq -r '.Subnets.[] | "\(.VpcId) \(.SubnetId) \(.State) \(.AvailabilityZone) \(.AvailableIpAddressCount | tostring | (" " * (4 - length)) + .) \(.CidrBlock | tostring | (" " * (16 - length)) + .)"'
+
+echo $raw >> $NUON_ACTIONS_OUTPUT_FILEPATH
