@@ -4,8 +4,10 @@ set -e
 set -o pipefail
 set -u
 
+
+region="$AWS_REGION"
 echo "listing subnet ips per availability zone"
-raw=`aws ec2 describe-subnets --filters "Name=tag-key,Values=install.nuon.co/id" --filters "Name=tag-value,Values=$NUON_INSTALL_ID"`
+raw=`aws ec2 --region $region describe-subnets --filters "Name=tag-key,Values=install.nuon.co/id" --filters "Name=tag-value,Values=$NUON_INSTALL_ID"`
 
 # print some values
 echo $raw | jq -r '.Subnets.[] | "\(.VpcId) \(.SubnetId) \(.State) \(.AvailabilityZone) \(.AvailableIpAddressCount | tostring | (" " * (4 - length)) + .) \(.CidrBlock | tostring | (" " * (16 - length)) + .)"'
