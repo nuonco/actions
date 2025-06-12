@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+echo >&2 "listing nodes..."
+content=$(kubectl get node \
+  --sort-by=".metadata.labels.karpenter\.sh/nodepool" \
+  -o=custom-columns="Name:.metadata.name,Status:.status.conditions[-1].type,Nodepool:.metadata.labels.karpenter\.sh/nodepool,AZ:.metadata.labels.topology\.kubernetes\.io/zone,Size:metadata.labels.node\.kubernetes\.io/instance-type,Create:.metadata.creationTimestamp")
+
+exit_code="$?"
+
+echo "$content"
+
+payload=`jq --null-input --arg exitCode "$exit_code" --arg textContent "${content//$' '/·}" '{"exit_code": $exitCode, "content": $textContent}'`
+echo $payload >> $NUON_ACTIONS_OUTPUT_FILEPATH
