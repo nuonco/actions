@@ -1,0 +1,157 @@
+name: nuon-version
+
+on:
+  repository_dispatch:
+    types: [nuon-promotion]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Nuon release version to pin, e.g. 0.19.1174
+        required: true
+        type: string
+      dry_run:
+        description: Resolve, pin and verify locally without pushing a branch or opening a PR
+        type: boolean
+        default: false
+
+concurrency:
+  group: nuon-version
+  cancel-in-progress: false
+
+env:
+  DOCKERFILE: images/nuon/Dockerfile
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ACTIONS_PR_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Resolve version
+        id: resolve
+        env:
+          RAW_VERSION: ${{ github.event.client_payload.version || inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${RAW_VERSION#v}"
+          if ! printf '%s' "${version}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.+][0-9A-Za-z.+-]+)?$'; then
+            echo "::error::unusable version '${RAW_VERSION}'"
+            exit 1
+          fi
+          current="$(sed -n 's/^ARG NUON_VERSION=//p' "${DOCKERFILE}")"
+          if [ "$(printf '%s\n' "${current}" | grep -c .)" != "1" ]; then
+            echo "::error::expected exactly one pinned 'ARG NUON_VERSION=<version>' in ${DOCKERFILE}"
+            exit 1
+          fi
+          {
+            echo "version=${version}"
+            echo "current=${current}"
+            echo "branch=nuon-version/${version}"
+          } >> "${GITHUB_OUTPUT}"
+          if [ "${version}" = "${current}" ]; then
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            echo "nuon image already pinned to ${version}" >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Pin version
+        if: steps.resolve.outputs.changed == 'true' || inputs.dry_run
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |
+          set -euo pipefail
+          sed -i "s|^ARG NUON_VERSION=.*|ARG NUON_VERSION=${VERSION}|" "${DOCKERFILE}"
+          grep -qx "ARG NUON_VERSION=${VERSION}" "${DOCKERFILE}"
+
+      - name: Verify discovery metadata
+        if: steps.resolve.outputs.changed == 'true' || inputs.dry_run
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/discover_images.py --root images > "${RUNNER_TEMP}/matrix.json"
+          found="$(python3 -c 'import json,os,sys; m=json.load(open(sys.argv[1])); print(next(i["version"] for i in m["include"] if i["name"] == "nuon"))' "${RUNNER_TEMP}/matrix.json")"
+          if [ "${found}" != "${VERSION}" ]; then
+            echo "::error::discovery reported nuon version '${found}', expected '${VERSION}'"
+            exit 1
+          fi
+
+      - name: Report dry run
+        if: inputs.dry_run
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+          CURRENT: ${{ steps.resolve.outputs.current }}
+          BRANCH: ${{ steps.resolve.outputs.branch }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Dry run"
+            echo
+            echo "| | |"
+            echo "| --- | --- |"
+            echo "| previous | \`${CURRENT}\` |"
+            echo "| resolved | \`${VERSION}\` |"
+            echo "| would push | \`${BRANCH}\` |"
+            echo "| would target | \`${GITHUB_REF_NAME}\` |"
+            echo
+            if [ -z "$(git status --porcelain -- "${DOCKERFILE}")" ]; then
+              echo "\`${DOCKERFILE}\` is already pinned to \`${VERSION}\`; nothing would change."
+            else
+              echo "Diff that would be committed:"
+              echo
+              echo '```diff'
+              git --no-pager diff -- "${DOCKERFILE}"
+              echo '```'
+            fi
+            echo
+            echo "No branch was pushed and no pull request was opened."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Open pull request
+        if: steps.resolve.outputs.changed == 'true' && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ secrets.ACTIONS_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.resolve.outputs.version }}
+          CURRENT: ${{ steps.resolve.outputs.current }}
+          BRANCH: ${{ steps.resolve.outputs.branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "${BRANCH}"
+          git commit -am "chore(images): pin nuon CLI to ${VERSION}"
+          git push --force origin "${BRANCH}"
+
+          existing="$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number')"
+          body="$(printf '%s\n' \
+            "Pins the \`nuon\` action image to the promoted nuon release." \
+            "" \
+            "| | |" \
+            "| --- | --- |" \
+            "| previous | \`${CURRENT}\` |" \
+            "| promoted | \`${VERSION}\` |" \
+            "| trigger | \`${GITHUB_EVENT_NAME}\` |" \
+            "" \
+            "\`NUON_VERSION\` in \`${DOCKERFILE}\` drives both the CLI install and" \
+            "\`org.opencontainers.image.version\`, so merging publishes \`nuonco/nuon:${VERSION}\`" \
+            "and moves \`nuonco/nuon:latest\`." \
+            "" \
+            "Opened by \`.github/workflows/nuon-version.yml\`.")"
+
+          if [ -n "${existing}" ] && [ "${existing}" != "null" ]; then
+            gh pr edit "${existing}" --body "${body}"
+            url="$(gh pr view "${existing}" --json url --jq .url)"
+          else
+            url="$(gh pr create \
+              --base "${GITHUB_REF_NAME}" \
+              --head "${BRANCH}" \
+              --title "chore(images): pin nuon CLI to ${VERSION}" \
+              --body "${body}")"
+          fi
+          echo "Pinned nuon CLI \`${CURRENT}\` -> \`${VERSION}\`: ${url}" >> "${GITHUB_STEP_SUMMARY}"

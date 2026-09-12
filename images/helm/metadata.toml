@@ -1,0 +1,19 @@
+experimental = true
+
+[versions]
+helm = "4.3.0"
+aws_iam_authenticator = "0.6.30"
+kubelogin = "0.2.9"
+gcloud = "516.0.0"
+
+[aws]
+title = "helm-aws"
+description = "helm and aws-iam-authenticator for EKS, using the runner-injected kubeconfig."
+
+[azure]
+title = "helm-azure"
+description = "helm and kubelogin for AKS, using the runner-injected kubeconfig."
+
+[gcp]
+title = "helm-gcp"
+description = "helm and gke-gcloud-auth-plugin for GKE, using the runner-injected kubeconfig."
