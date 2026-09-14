@@ -7,16 +7,16 @@ actions include, checking the status of a delegated Route53 Zone's DNS records.
 
 Check public DNS delegation, SOA, CAA, and DS for a domain.
 
-|            |                                                                                  |
-| ---------- | -------------------------------------------------------------------------------- |
-| image      | `nuonco/dns-checks`                                                              |
-| tags       | `latest`, `sha-<commit sha>`                                                     |
-| platforms  | `linux/amd64`, `linux/arm64`                                                     |
-| base image | `gcr.io/distroless/static-debian12`                                              |
-| entrypoint | `/dns-checks`                                                                    |
-| signed by  | `https://github.com/nuonco/actions/.github/workflows/images.yml@refs/heads/main` |
-| dockerfile | [`images/dns-checks/Dockerfile`](./Dockerfile)                                   |
-| status     | experimental                                                                     |
+| | |
+| --- | --- |
+| image | `nuonco/dns-checks` |
+| tags | `latest`, `sha-<commit sha>` |
+| platforms | `linux/amd64`, `linux/arm64` |
+| base image | `gcr.io/distroless/static-debian12` |
+| entrypoint | `/dns-checks` |
+| signed by | `https://github.com/nuonco/actions/.github/workflows/images.yml@refs/heads/main` |
+| dockerfile | [`images/dns-checks/Dockerfile`](./Dockerfile) |
+| status | experimental |
 
 <!-- facts-end -->
 
