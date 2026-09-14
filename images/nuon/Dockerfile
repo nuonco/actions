@@ -3,7 +3,7 @@ ARG DEBIAN_IMAGE=mirror.gcr.io/library/debian:bookworm-slim
 ARG NUON_VERSION=0.19.1174
 FROM ${DEBIAN_IMAGE} AS install
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends bash ca-certificates curl \
+    && apt-get install -y --no-install-recommends bash ca-certificates curl jq \
     && rm -rf /var/lib/apt/lists/*
 ARG NUON_VERSION
 RUN set -eu; \
