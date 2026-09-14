@@ -1,0 +1,21 @@
+experimental = true
+
+[versions]
+terraform = "1.16.2"
+helm = "4.3.0"
+kubectl = "1.33.4"
+aws_iam_authenticator = "0.6.30"
+kubelogin = "0.2.9"
+gcloud = "516.0.0"
+
+[aws]
+title = "terraform-aws"
+description = "terraform, helm, kubectl, git, and aws-iam-authenticator for EKS, using the runner-injected kubeconfig."
+
+[azure]
+title = "terraform-azure"
+description = "terraform, helm, kubectl, git, and kubelogin for AKS, using the runner-injected kubeconfig."
+
+[gcp]
+title = "terraform-gcp"
+description = "terraform, helm, kubectl, git, and gke-gcloud-auth-plugin for GKE, using the runner-injected kubeconfig."

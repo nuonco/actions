@@ -1,0 +1,19 @@
+experimental = true
+
+[versions]
+kubectl = "1.33.4"
+aws_iam_authenticator = "0.6.30"
+kubelogin = "0.2.9"
+gcloud = "516.0.0"
+
+[aws]
+title = "kubectl-aws"
+description = "kubectl and aws-iam-authenticator for EKS, using the runner-injected kubeconfig."
+
+[azure]
+title = "kubectl-azure"
+description = "kubectl and kubelogin for AKS, using the runner-injected kubeconfig."
+
+[gcp]
+title = "kubectl-gcp"
+description = "kubectl and gke-gcloud-auth-plugin for GKE, using the runner-injected kubeconfig."

@@ -1,0 +1,23 @@
+name: image-docs
+
+on:
+  pull_request:
+    paths:
+      - images/**
+      - .github/scripts/discover_images.py
+      - .github/scripts/gen_image_docs.py
+      - .github/workflows/image-docs.yml
+  workflow_dispatch:
+
+concurrency:
+  group: image-docs-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check image docs
+        run: python3 .github/scripts/gen_image_docs.py --root images --check
