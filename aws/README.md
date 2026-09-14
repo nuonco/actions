@@ -27,7 +27,7 @@ the `Ingress` and is available in its `Status` field
 ### Example Configuration
 
 ```toml
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 name    = "api-alb-healthcheck"
 timeout = "1m0s"
 

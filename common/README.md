@@ -26,7 +26,7 @@ Format: `json`
 ### Example Configuration
 
 ```toml
-#:schema http://localhost:8081/v1/general/config-schema?source=action
+# action
 name    = "healthcheck"
 timeout = "5m0s"
 

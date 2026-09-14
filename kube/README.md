@@ -34,7 +34,7 @@ to want to strip it.
 ### Example Configuration
 
 ```toml
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 name    = "list-nodes"
 timeout = "0m30s"
 
@@ -80,7 +80,7 @@ Format: `json`
 ### Example Configuration
 
 ```toml
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 name    = "deployment-restart"
 timeout = "1m30s"
 
@@ -123,7 +123,7 @@ Format: `json`
 ### Example Configuration
 
 ```toml
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 name    = "deployment-restart"
 timeout = "1m30s"
 
@@ -166,7 +166,7 @@ Format: `json`
 ### Example Configuration
 
 ```toml
-#:schema https://api.nuon.co/v1/general/config-schema?source=action
+# action
 name    = "deployment-logs"
 timeout = "2m30s"
 
